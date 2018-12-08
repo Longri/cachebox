@@ -16,6 +16,7 @@ dependencies {
     implementation project(":CB_UI_Base")
     implementation project(":CB_Locator_Base")
     implementation project(":CB_Core")
+    implementation project(":CB_VTM")
 
     //libgdx
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"

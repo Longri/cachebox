@@ -131,6 +131,7 @@ public class MenuID {
     public static final int AID_TEST_VIEW = -1;
     public static final int AID_TEST2 = -2;
 
+    public static final int AID_SHOW_VTM_MAP = 99;
     public static final int AID_SHOW_MAP = 100;
     public static final int AID_SHOW_HINT = 101;
     public static final int AID_SHOW_CACHELIST = 102;

@@ -62,6 +62,9 @@ import CB_Utils.Util.IChanged;
 import CB_Utils.Util.UnitFormatter;
 import CB_Utils.fileProvider.File;
 import CB_Utils.fileProvider.FileFactory;
+import CB_UI.GL_UI.Main.Actions.CB_Action_ShowVtmMap;
+import de.droidcachebox.cb_vtm.VtmMapView;
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 
 import java.util.Timer;
@@ -87,6 +90,7 @@ public class TabMainView extends MainViewBase implements PositionChangedEvent {
     public static CB_Action_ShowDescriptionView actionShowDescriptionView;
 
     public static CB_Action_ShowView actionShowMap;
+    public static CB_Action_ShowView actionShowVtmMap;
     public static CB_Action_ShowView actionShowCompassView;
     public static CB_Action_ShowView actionNavigateTo1;
 
@@ -127,6 +131,7 @@ public class TabMainView extends MainViewBase implements PositionChangedEvent {
     public static CB_Action actionHelp;
 
     public static MapView mapView = null;
+    public static VtmMapView vtmMapView = null;
     public static CacheListView cacheListView = null;
     public static AboutView aboutView = null;
     public static CompassView compassView = null;
@@ -369,6 +374,7 @@ public class TabMainView extends MainViewBase implements PositionChangedEvent {
 
         // map alternatives + context
         actionShowMap = new CB_Action_ShowMap();
+        actionShowVtmMap = new CB_Action_ShowVtmMap();
         actionShowCompassView = new CB_Action_ShowCompassView();
         actionNavigateTo1 = new CB_Action_ShowActivity("NavigateTo", MenuID.AID_NAVIGATE_TO, ViewConst.NAVIGATE_TO, Sprites.getSprite(IconName.navigate.name()));
         if (GlobalCore.isTestVersion())
@@ -485,6 +491,7 @@ public class TabMainView extends MainViewBase implements PositionChangedEvent {
         actionShowNotesView.setTab(this, leftTab);
         actionShowSpoilerView.setTab(this, leftTab);
         actionShowMap.setTab(this, leftTab);
+        actionShowVtmMap.setTab(this, leftTab);
         actionShowCompassView.setTab(this, leftTab);
         actionNavigateTo1.setTab(this, leftTab);
         if (GlobalCore.isTestVersion())
@@ -513,7 +520,17 @@ public class TabMainView extends MainViewBase implements PositionChangedEvent {
         mDescriptionButtonOnLeftTab.addAction(new CB_ActionButton(actionShowTrackableListView, false));
         mDescriptionButtonOnLeftTab.addAction(new CB_ActionButton(actionShowDescExt, false));
 
-        mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowMap, true, GestureDirection.Up));
+
+        //Decide which map view is default
+        if (Config.UseVtmDefault.getValue()) {
+            mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowMap, false));
+            mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowVtmMap, true, GestureDirection.Up));
+        } else {
+            mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowMap, true, GestureDirection.Up));
+            mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowVtmMap, false));
+        }
+
+
         mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowCompassView, false, GestureDirection.Right));
         mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionNavigateTo1, false, GestureDirection.Down));
         mMapButtonOnLeftTab.addAction(new CB_ActionButton(actionShowTrackListView, false, GestureDirection.Down));
