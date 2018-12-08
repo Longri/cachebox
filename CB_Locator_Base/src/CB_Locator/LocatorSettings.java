@@ -48,4 +48,6 @@ public interface LocatorSettings {
     SettingDouble MapInitLatitude = new SettingDouble("MapInitLatitude", SettingCategory.Positions, NEVER, -1000, SettingStoreType.Global, SettingUsage.ALL);
     SettingDouble MapInitLongitude = new SettingDouble("MapInitLongitude", SettingCategory.Positions, NEVER, -1000, SettingStoreType.Global, SettingUsage.ALL);
 
+    SettingBool UseVtmDefault = new SettingBool("UseVtmDefault", SettingCategory.Map, NORMAL, false, SettingStoreType.Global, SettingUsage.ACB);
+
 }
