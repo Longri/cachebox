@@ -63,7 +63,7 @@ import CB_Utils.Util.UnitFormatter;
 import CB_Utils.fileProvider.File;
 import CB_Utils.fileProvider.FileFactory;
 import CB_UI.GL_UI.Main.Actions.CB_Action_ShowVtmMap;
-import de.droidcachebox.cb_vtm.VtmMapView;
+import cb_vtm.VtmMapView;
 
 import com.badlogic.gdx.graphics.g2d.Batch;
 

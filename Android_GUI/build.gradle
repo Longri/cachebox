@@ -17,7 +17,6 @@ dependencies {
     implementation project(path: ':CB_Translation_Base', transitive: false)
     implementation project(path: ':CB_mapsforge', transitive: false)
     implementation project(path: ':CB_UI_Base', transitive: false)
-    implementation project(path: ':CB_Locator_Base', transitive: false)
     implementation project(path: ':CB_Core', transitive: false)
     implementation (project(path: ':CB_UI')){
         exclude group: 'com.github.tony19'

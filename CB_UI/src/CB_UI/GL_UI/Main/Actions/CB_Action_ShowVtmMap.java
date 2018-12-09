@@ -17,7 +17,6 @@
 package CB_UI.GL_UI.Main.Actions;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
 import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.rendertheme.ExternalRenderTheme;
@@ -41,13 +40,9 @@ import CB_Translation_Base.TranslationEngine.Translation;
 import CB_UI.Config;
 import CB_UI.GL_UI.Activitys.MapDownload;
 import CB_UI.GL_UI.Main.TabMainView;
-import CB_UI.GL_UI.Views.MapView.MapMode;
 import CB_UI.TrackRecorder;
 import CB_UI_Base.GL_UI.CB_View_Base;
-import CB_UI_Base.GL_UI.Controls.MessageBox.GL_MsgBox;
 import CB_UI_Base.GL_UI.Controls.MessageBox.GL_MsgBox.OnMsgBoxClickListener;
-import CB_UI_Base.GL_UI.Controls.MessageBox.MessageBoxButtons;
-import CB_UI_Base.GL_UI.Controls.MessageBox.MessageBoxIcon;
 import CB_UI_Base.GL_UI.GL_View_Base;
 import CB_UI_Base.GL_UI.GL_View_Base.OnClickListener;
 import CB_UI_Base.GL_UI.Main.Actions.CB_Action_ShowView;
@@ -63,7 +58,7 @@ import CB_Utils.Settings.SettingBool;
 import CB_Utils.Util.FileIO;
 import CB_Utils.fileProvider.File;
 import CB_Utils.fileProvider.FileFactory;
-import de.droidcachebox.cb_vtm.VtmMapView;
+import cb_vtm.VtmMapView;
 
 /**
  * @author Longri
