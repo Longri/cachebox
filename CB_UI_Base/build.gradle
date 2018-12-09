@@ -14,6 +14,12 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 
+    //sjxp-2.2.jar
+    implementation fileTree(dir: '../libs', include: ['sjxp-2.2.jar'])
+
+    // https://mvnrepository.com/artifact/net.sf.kxml/kxml2
+    implementation group: 'net.sf.kxml', name: 'kxml2', version: '2.3.0'
+
 }
 
 
