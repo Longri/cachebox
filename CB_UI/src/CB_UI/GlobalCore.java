@@ -30,7 +30,6 @@ import CB_Core.Types.Waypoint;
 import CB_Locator.Coordinate;
 import CB_Locator.Map.Track;
 import CB_Translation_Base.TranslationEngine.Translation;
-import CB_UI.GL_UI.Controls.PopUps.ApiUnavailable;
 import CB_UI_Base.Events.PlatformConnector;
 import CB_UI_Base.GL_UI.Controls.Animation.DownloadAnimation;
 import CB_UI_Base.GL_UI.Controls.Dialogs.CancelWaitDialog;
@@ -54,7 +53,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static CB_Core.Api.API_ErrorEventHandlerList.handleApiKeyError;
-import static CB_Core.Api.GroundspeakAPI.isAccessTokenInvalid;
+import static CB_Core.Api.GroundspeakAPI.*;
 
 /**
  * @author ging-buh
@@ -260,8 +259,8 @@ public class GlobalCore extends CB_UI_Base.Global implements SolverCacheInterfac
                 if (GlobalCore.getSelectedCache() != null)
                     result = DescriptionImageGrabber.GrabImagesSelectedByCache(ip, true, false, GlobalCore.getSelectedCache().Id, GlobalCore.getSelectedCache().getGcCode(), "", "");
                 wd.close();
-                if (result == GroundspeakAPI.ERROR) {
-                    GL.that.Toast(ApiUnavailable.INSTANCE);
+                if (result != OK) {
+                    GL.that.Toast(LastAPIError);
                     return;
                 }
             }
@@ -277,7 +276,6 @@ public class GlobalCore extends CB_UI_Base.Global implements SolverCacheInterfac
 
     public static void MsgDownloadLimit() {
         GL.that.RunOnGLWithThreadCheck(new IRunOnGL() {
-
             @Override
             public void run() {
                 GL_MsgBox.Show(Translation.Get("Limit_msg"), Translation.Get("Limit_title"), MessageBoxButtons.OK, MessageBoxIcon.GC_Live, null);

@@ -15,7 +15,6 @@ import CB_UI_Base.GL_UI.Controls.Dialogs.ProgressDialog.ICancelListener;
 import CB_UI_Base.GL_UI.Controls.MessageBox.GL_MsgBox;
 import CB_UI_Base.GL_UI.Controls.MessageBox.MessageBoxButtons;
 import CB_UI_Base.GL_UI.Controls.MessageBox.MessageBoxIcon;
-import CB_UI_Base.GL_UI.Controls.PopUps.ConnectionError;
 import CB_UI_Base.GL_UI.GL_Listener.GL;
 import CB_UI_Base.GL_UI.IRunOnGL;
 import CB_UI_Base.GL_UI.Main.Actions.CB_Action;
@@ -95,21 +94,17 @@ public class CB_Action_UploadFieldNote extends CB_Action {
 
                         if (fieldNote.isTbFieldNote) {
                             // there is no TB draft. we have to log direct
-                            result = GroundspeakAPI.uploadTrackableLog(fieldNote.TravelBugCode, fieldNote.TrackingNumber, fieldNote.gcCode, LogTypes.CB_LogType2GC(fieldNote.type), fieldNote.timestamp, fieldNote.comment) ? GroundspeakAPI.OK : GroundspeakAPI.ERROR;
+                            result = GroundspeakAPI.uploadTrackableLog(fieldNote.TravelBugCode, fieldNote.TrackingNumber, fieldNote.gcCode, LogTypes.CB_LogType2GC(fieldNote.type), fieldNote.timestamp, fieldNote.comment);
                         } else {
-                            if (sendGCVote && !fieldNote.isTbFieldNote) {
+                            if (sendGCVote) {
                                 if (fieldNote.gc_Vote > 0)
                                     sendCacheVote(fieldNote);
                             }
-                            boolean dl = fieldNote.isDirectLog;
-                            result = GroundspeakAPI.UploadDraftOrLog(fieldNote.gcCode, fieldNote.type.getGcLogTypeId(), fieldNote.timestamp, fieldNote.comment, dl);
+                            result = GroundspeakAPI.UploadDraftOrLog(fieldNote.gcCode, fieldNote.type.getGcLogTypeId(), fieldNote.timestamp, fieldNote.comment, fieldNote.isDirectLog);
                         }
 
                         if (result == GroundspeakAPI.ERROR) {
-                            GL.that.Toast(ConnectionError.INSTANCE);
-                            // todo with API1 timeout etc
-                            // PD.close();
-                            // return;
+                            GL.that.Toast(GroundspeakAPI.LastAPIError);
                             UploadMeldung += fieldNote.gcCode + "\n" + GroundspeakAPI.LastAPIError + "\n";
                         } else {
                             // set fieldnote as uploaded only when upload was working
@@ -119,7 +114,6 @@ public class CB_Action_UploadFieldNote extends CB_Action {
                         count++;
                     }
                 }
-
                 PD.close();
             }
 

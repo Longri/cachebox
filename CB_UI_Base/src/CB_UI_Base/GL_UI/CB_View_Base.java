@@ -6,9 +6,6 @@ import CB_UI_Base.Math.SizeF;
 import CB_Utils.Util.MoveableList;
 import com.badlogic.gdx.graphics.g2d.Batch;
 
-import java.util.ConcurrentModificationException;
-import java.util.NoSuchElementException;
-
 public class CB_View_Base extends GL_View_Base {
 
     public static final int FIXED = -1;
@@ -17,11 +14,10 @@ public class CB_View_Base extends GL_View_Base {
     protected boolean isInitial = false;
     // row handling by arbor95: makes live much easier
     // Designing this ( a page, a box, a panel, ...) by adding rows of objects<GL_View_Base>
-    // the position and width (stretched equally, weighted or percentual) of the objects is calculated automatically
+    // the position and width (stretched equally, weighted, fixed or percentual) of the objects is calculated automatically
     private MoveableList<GL_View_Base> row;
-    private boolean topdown = true; // false = bottomup
+    private boolean topdown = TOPDOWN; // false = bottomup
     private float rowYPos = 0;
-    private float rowMaxHeight = 0;
     private float xMargin = 0;
     private float yMargin = 0;
     private float topYAdd;
@@ -133,7 +129,6 @@ public class CB_View_Base extends GL_View_Base {
             // set this to null!
             setToNull(this);
         } else {
-
             try {
                 synchronized (childs) {
                     for (int i = 0; i < childs.size(); i++) {
@@ -151,14 +146,8 @@ public class CB_View_Base extends GL_View_Base {
                     // set this to null!
                     setToNull(this);
                 }
-            } catch (NoSuchElementException e) {
-
-                setToNull(this);
-            } catch (ConcurrentModificationException e) {
-
-                setToNull(this);
-            } catch (NullPointerException e) {
-
+            } catch (Exception e) {
+                // NoSuchElementException
                 setToNull(this);
             }
         }
@@ -275,12 +264,39 @@ public class CB_View_Base extends GL_View_Base {
         rowYPos = YPos;
     }
 
+    public void updateRowY(float newHeight, CB_View_Base controlWithNewHeight) {
+        float diffHeight = newHeight - controlWithNewHeight.getHeight();
+        float lastPos = controlWithNewHeight.getY();
+        // all elements of Last Row must be corrected
+        float lastRowHeight = 0;
+        for (GL_View_Base c : this.childs) {
+            // get controls of the row
+            if (c.getY() == lastPos)
+                if (c.getHeight() > lastRowHeight)
+                    lastRowHeight = c.getHeight();
+        }
+        if (newHeight > lastRowHeight) {
+            if (topdown) {
+                rowYPos = rowYPos - diffHeight;
+                topYAdd = topYAdd - diffHeight;
+                for (GL_View_Base c : this.childs) {
+                    // get controls of the row
+                    if (c.getY() == lastPos)
+                        c.setY(lastPos - diffHeight);
+                }
+            } else {
+                rowYPos = rowYPos + diffHeight;
+                bottomYAdd = bottomYAdd + diffHeight;
+            }
+        }
+    }
+
     /**
      * * setting the margins between the added objects
      **/
     public void setMargins(float xMargin, float yMargin) {
-        xMargin = xMargin;
-        yMargin = yMargin;
+        this.xMargin = xMargin;
+        this.yMargin = yMargin;
     }
 
     /**
@@ -409,9 +425,10 @@ public class CB_View_Base extends GL_View_Base {
             row.add(c);
         if (lastInRow) {
             // Determine rowMaxHeight
-            rowMaxHeight = 0;
+            float rowMaxHeight = 0;
             for (int i = 0, n = row.size(); i < n; i++) {
                 GL_View_Base view = row.get(i);
+                // view.parent = this;
                 if (view.getHeight() > rowMaxHeight)
                     rowMaxHeight = view.getHeight();
             }
@@ -463,14 +480,13 @@ public class CB_View_Base extends GL_View_Base {
             } else {
                 rowYPos = rowYPos + rowMaxHeight + yMargin;
                 bottomYAdd = rowYPos;
-                // todo vielleicht automatische Höhenanpassung von this
             }
             row.clear();
         }
     }
 
     public void measureRec() {
-        // Some Controls can change there size
+        // Some Controls can change their size
 
     }
 }

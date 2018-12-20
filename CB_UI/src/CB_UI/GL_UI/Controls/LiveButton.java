@@ -53,9 +53,14 @@ public class LiveButton extends ImageButton implements QueStateChanged {
 
     @Override
     public void render(Batch batch) {
-        if (state && GroundspeakAPI.isDownloadLimitExceeded()) {
-            GlobalCore.MsgDownloadLimit();
-            setState(false);
+        if (state) {
+            GL.that.postAsync(() -> {
+                GroundspeakAPI.fetchMyUserInfos();
+                if (GroundspeakAPI.isDownloadLimitExceeded()) {
+                    GlobalCore.MsgDownloadLimit();
+                    setState(false);
+                }
+            });
         }
         Animation = (1 + ((int) (GL.that.getStateTime() * 1000) % Duration) / (Duration / Frames));
         if (lastAnimation != Animation) {
@@ -69,7 +74,6 @@ public class LiveButton extends ImageButton implements QueStateChanged {
 
     @Override
     public boolean click(int x, int y, int pointer, int button) {
-
         setState(!state);
         if (state) {
             if (MapView.that != null) {

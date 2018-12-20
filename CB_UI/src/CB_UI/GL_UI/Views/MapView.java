@@ -16,24 +16,22 @@
 
 package CB_UI.GL_UI.Views;
 
+import CB_Core.Api.GroundspeakAPI;
 import CB_Core.Api.LiveMapQue;
-import CB_Core.Api.SearchGC;
 import CB_Core.CacheListChangedEventList;
 import CB_Core.CacheTypes;
-import CB_Core.Types.CacheListDAO;
 import CB_Core.DAO.WaypointDAO;
 import CB_Core.Database;
 import CB_Core.FilterInstances;
 import CB_Core.Types.Cache;
-import CB_Core.Types.ImageEntry;
-import CB_Core.Types.LogEntry;
+import CB_Core.Types.CacheListDAO;
 import CB_Core.Types.Waypoint;
 import CB_Locator.Coordinate;
 import CB_Locator.CoordinateGPS;
 import CB_Locator.Events.PositionChangedEvent;
 import CB_Locator.Locator;
-import CB_Locator.Map.*;
 import CB_Locator.Map.MapScale;
+import CB_Locator.Map.*;
 import CB_Translation_Base.TranslationEngine.Translation;
 import CB_UI.*;
 import CB_UI.GL_UI.Activitys.EditWaypoint;
@@ -66,7 +64,6 @@ import CB_UI_Base.graphics.Geometry.Line;
 import CB_UI_Base.graphics.Geometry.Quadrangle;
 import CB_UI_Base.graphics.PolygonDrawable;
 import CB_Utils.Interfaces.ICancelRunnable;
-import CB_Utils.Lists.CB_List;
 import CB_Utils.Log.Log;
 import CB_Utils.MathUtils;
 import CB_Utils.MathUtils.CalculationType;
@@ -80,7 +77,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.*;
 
-import static CB_Core.Types.Cache.IS_FULL;
+import static CB_Core.Api.GroundspeakAPI.updateGeoCache;
 import static CB_UI_Base.GL_UI.Sprites.*;
 
 /**
@@ -436,31 +433,20 @@ public class MapView extends MapViewBase implements SelectedCacheEvent, Position
 
                         @Override
                         public void run() {
-                            String GcCode = infoBubble.getCache().getGcCode();
 
-                            SearchGC searchC = new SearchGC(GcCode);
-                            searchC.number = 1;
-                            searchC.available = false;
-
-                            CB_List<Cache> apiCaches = new CB_List<>();
-                            ArrayList<LogEntry> apiLogs = new ArrayList<>();
-                            ArrayList<ImageEntry> apiImages = new ArrayList<>();
-
-                            try {
-                                CB_UI.SearchForGeocaches.getInstance().SearchForGeocachesJSON(searchC, apiCaches, apiLogs, apiImages, infoBubble.getCache().getGPXFilename_ID(), this);
-                                if (apiCaches.size() > 0) {
-                                    Cache c = apiCaches.get(0);
-                                    if (c.getGcCode() == GcCode) {
-                                        c.setApiStatus(IS_FULL);
-                                    }
-                                    WriteIntoDB.CachesAndLogsAndImagesIntoDB(apiCaches, apiLogs, apiImages);
-                                } else {
-                                    //TODO maybe basic Member Limit
-                                    Log.debug(log, "No Caches loaded, maybe Limit reached");
-                                    GL.that.Toast("No Caches loaded, maybe Limit reached");
+                            String GCCode = infoBubble.getCache().getGcCode();
+                            ArrayList<GroundspeakAPI.GeoCacheRelated> geoCacheRelateds = updateGeoCache(infoBubble.getCache());
+                            if (geoCacheRelateds.size() > 0) {
+                                try {
+                                    // todo check, if correct
+                                    WriteIntoDB.CachesAndLogsAndImagesIntoDB(geoCacheRelateds, null);
+                                } catch (InterruptedException e) {
+                                    Log.err(log, "WriteIntoDB.CachesAndLogsAndImagesIntoDB", e);
                                 }
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            } else {
+                                String msg = "No Cache loaded: \n remaining Full:" + GroundspeakAPI.fetchMyUserInfos().remaining + "\n remaining Lite:" + GroundspeakAPI.fetchMyUserInfos().remainingLite;
+                                Log.debug(log, msg);
+                                GL.that.Toast(msg);
                             }
 
                             // Reload result from DB
@@ -469,9 +455,9 @@ public class MapView extends MapViewBase implements SelectedCacheEvent, Position
                                 CacheListDAO cacheListDAO = new CacheListDAO();
                                 cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, false, Config.ShowAllWaypoints.getValue());
                             }
-
                             CacheListChangedEventList.Call();
-                            Cache selCache = Database.Data.Query.GetCacheByGcCode(GcCode);
+
+                            Cache selCache = Database.Data.Query.GetCacheByGcCode(GCCode);
                             GlobalCore.setSelectedCache(selCache);
                             infoBubble.setCache(selCache, null, true);
                             wd.close();
@@ -984,7 +970,6 @@ public class MapView extends MapViewBase implements SelectedCacheEvent, Position
         super.loadTiles();
 
         if (CarMode && CB_UI_Settings.LiveMapEnabeld.getValue()) {
-
             LiveMapQue.setCenterDescriptor(center);
 
             // LiveMap queue complete screen

@@ -16,9 +16,9 @@
 package CB_UI.GL_UI.Views;
 
 import CB_Core.*;
-import CB_Core.Types.CacheListDAO;
 import CB_Core.DAO.WaypointDAO;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheListDAO;
 import CB_Core.Types.Categories;
 import CB_Core.Types.Waypoint;
 import CB_Locator.Map.ManagerBase;
@@ -40,12 +40,10 @@ import CB_UI_Base.Math.CB_RectF;
 import CB_UI_Base.Math.UI_Size_Base;
 import CB_Utils.Lists.CB_List;
 import CB_Utils.Log.Log;
-import CB_Utils.Plattform;
 import CB_Utils.Settings.SettingString;
 import CB_Utils.Util.FileList;
 import CB_Utils.fileProvider.File;
 import CB_Utils.fileProvider.FileFactory;
-
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -255,7 +253,6 @@ public class MainViewInit extends MainViewBase {
 
             FileType fileType = FileType.Internal;
 
-
             new Translation(Config.mWorkPath, fileType);
             try {
                 Translation.LoadTranslation(Config.Sel_LanguagePath.getValue());
@@ -263,7 +260,7 @@ public class MainViewInit extends MainViewBase {
                 try {
                     Translation.LoadTranslation(Config.Sel_LanguagePath.getDefaultValue());
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    Log.err(log,"ini_Translations", e1);
                 }
             }
         }
