@@ -70,7 +70,7 @@ public class CB_Action_LoadLogs extends CB_Action {
 
                 try {
                     Thread.sleep(10);
-                    logList = fetchGeocacheLogs(GlobalCore.getSelectedCache(), loadAllLogs, this);
+                    logList = fetchGeoCacheLogs(GlobalCore.getSelectedCache(), loadAllLogs, this);
                     if (result == ERROR) {
                         GL.that.Toast(LastAPIError);
                     }
@@ -79,7 +79,8 @@ public class CB_Action_LoadLogs extends CB_Action {
 
                         Iterator<LogEntry> iterator = logList.iterator();
                         LogDAO dao = new LogDAO();
-                        dao.deleteLogs(GlobalCore.getSelectedCache().Id);
+                        if (loadAllLogs)
+                            dao.deleteLogs(GlobalCore.getSelectedCache().Id);
                         do {
                             ChangedCount++;
                             try {

@@ -1,6 +1,5 @@
 package CB_UI.GL_UI.Main.Actions;
 
-import CB_Core.Api.GroundspeakAPI;
 import CB_Core.CacheListChangedEventList;
 import CB_Core.Database;
 import CB_Core.FilterInstances;
@@ -25,7 +24,8 @@ import CB_Utils.Log.Log;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+
+import static CB_Core.Api.GroundspeakAPI.*;
 
 public class CB_Action_chkState extends CB_Action {
     private static final String sKlasse = "CB_Action_chkState";
@@ -35,8 +35,7 @@ public class CB_Action_chkState extends CB_Action {
     private ProgressDialog pd;
     private boolean cancel = false;
     private final RunnableReadyHandler ChkStatRunnable = new RunnableReadyHandler() {
-        final int BlockSize = 50; // size you like, limit handled in GroundspeakAPI
-        // API 1.0 has a limit of 50, handled in GroundspeakAPI
+        final int BlockSize = 50; // API 1.0 has a limit of 50, handled in GroundspeakAPI but want to write to DB after Blocksize fetched
 
         @Override
         public void run() {
@@ -52,20 +51,20 @@ public class CB_Action_chkState extends CB_Action {
                 }
 
             }
-            float ProgressInkrement = 50.0f / (chkList.size() / BlockSize);
+            float ProgressInkrement = 100.0f / (chkList.size() / BlockSize); // 100% durch Anzahl Schleifen
 
             // in Blöcke Teilen
 
-            int start = 0;
-            ArrayList<Cache> addedReturnList = new ArrayList<Cache>();
+            int skip = 0;
 
             result = 0;
-            ArrayList<Cache> caches;
+            ArrayList<Cache> caches = new ArrayList<>();
 
             boolean cancelThread = false;
 
             float progress = 0;
 
+            CacheDAO dao = new CacheDAO();
             do {
                 try {
                     Thread.sleep(10);
@@ -74,60 +73,38 @@ public class CB_Action_chkState extends CB_Action {
                     cancelThread = true;
                 }
 
-                caches = new ArrayList<>();
+                caches.clear();
                 if (!cancelThread) {
 
                     if (chkList == null || chkList.size() == 0) {
                         break;
                     }
 
-                    Iterator<Cache> Iterator2 = chkList.iterator();
-                    int index = 0;
-                    do {
-                        if (index >= start && index < start + BlockSize) {
-                            caches.add(Iterator2.next());
-                        } else {
-                            Iterator2.next();
-                        }
-                        index++;
-                    } while (Iterator2.hasNext());
+                    for (int i = skip; i < skip + BlockSize && i < chkList.size(); i++) {
+                        caches.add(chkList.get(i));
+                    }
+                    skip += BlockSize;
 
-                    addedReturnList.addAll(GroundspeakAPI.updateStatusOfGeoCaches(caches));
-                    if (GroundspeakAPI.APIError != GroundspeakAPI.OK) {
-                        GL.that.Toast(GroundspeakAPI.LastAPIError);
+                    // Database.Data.beginTransaction();
+                    for (GeoCacheRelated ci : updateStatusOfGeoCaches(caches)) {
+                        if (dao.UpdateDatabaseCacheState(ci.cache))
+                            ChangedCount++;
+                    }
+                    // Database.Data.setTransactionSuccessful();
+                    // Database.Data.endTransaction();
+
+                    if (APIError != OK) {
+                        GL.that.Toast(LastAPIError);
                         break;
                     }
-                    start += BlockSize;
                 }
 
                 progress += ProgressInkrement;
-
                 ProgresssChangedEventList.Call("", (int) progress);
 
-            } while (caches.size() == BlockSize && !cancelThread);
+            } while (skip < chkList.size() && !cancelThread);
 
-
-            if (result == 0 && !cancelThread) {
-                Database.Data.beginTransaction();
-
-                Iterator<Cache> iterator = addedReturnList.iterator();
-                CacheDAO dao = new CacheDAO();
-                do {
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                        cancelThread = true;
-                    }
-                    Cache writeTmp = iterator.next();
-                    if (writeTmp.getGcCode().toLowerCase().startsWith("gc"))
-                        if (dao.UpdateDatabaseCacheState(writeTmp))
-                            ChangedCount++;
-                } while (iterator.hasNext() && !cancelThread);
-
-                Database.Data.setTransactionSuccessful();
-                Database.Data.endTransaction();
-
-            }
+            // dao = null;
             pd.close();
 
         }
