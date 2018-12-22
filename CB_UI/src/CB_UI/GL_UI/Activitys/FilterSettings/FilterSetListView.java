@@ -11,6 +11,7 @@ import CB_UI_Base.GL_UI.GL_View_Base;
 import CB_UI_Base.GL_UI.Sprites;
 import CB_UI_Base.GL_UI.Sprites.IconName;
 import CB_UI_Base.Math.CB_RectF;
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
@@ -24,6 +25,7 @@ public class FilterSetListView extends V_ListView {
     public static final int CHECK_ITEM = 1;
     public static final int THREE_STATE_ITEM = 2;
     public static final int NUMERIC_ITEM = 3;
+    public static final int NUMERIC_INT_ITEM = 4;
     public static boolean mustSaveFilter = false;
     private static FilterSetListViewItem NotAvailable;
     private static FilterSetListViewItem Archived;
@@ -43,6 +45,8 @@ public class FilterSetListView extends V_ListView {
     private static FilterSetListViewItem maxContainerSize;
     private static FilterSetListViewItem minRating;
     private static FilterSetListViewItem maxRating;
+    private static FilterSetListViewItem minFavPoints;
+    private static FilterSetListViewItem maxFavPoints;
     private static FilterSetListViewItem types;
     private static FilterSetListViewItem attribs;
     int index = 0;
@@ -138,6 +142,9 @@ public class FilterSetListView extends V_ListView {
         maxContainerSize = dt.addChild(addFilterSetItem(Sprites.SizesIcons.toArray(), Translation.Get("maxContainerSize"), NUMERIC_ITEM, 0, 4, 4, 1));
         minRating = dt.addChild(addFilterSetItem(Sprites.Stars.toArray(), Translation.Get("minRating"), NUMERIC_ITEM, 0, 5, 0, 0.5f));
         maxRating = dt.addChild(addFilterSetItem(Sprites.Stars.toArray(), Translation.Get("maxRating"), NUMERIC_ITEM, 0, 5, 5, 0.5f));
+        minFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("minFavPoints"), NUMERIC_INT_ITEM, 0, 10000, 0, 1.0f));
+        maxFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("maxFavPoints"), NUMERIC_INT_ITEM, 0, 10000, 0, 1.0f));
+
 
         // add CacheTypes
         types = addFilterSetCollapseItem(null, "Cache Types", COLLAPSE_BUTTON_ITEM);
@@ -178,11 +185,26 @@ public class FilterSetListView extends V_ListView {
         lFilterSets.add(tmp);
 
         FilterSetListViewItem v = new FilterSetListViewItem(EditFilterSettings.ItemRec, index++, tmp);
-        // inital mit GONE
+        // initial mit GONE
         v.setInvisible();
         lFilterSetListViewItems.add(v);
         return v;
+    }
 
+    private FilterSetListViewItem addFilterSetItem(Sprite Icon, String Name, int ItemType, double i, double j, double k, double f) {
+        if (lFilterSets == null) {
+            lFilterSets = new ArrayList<>();
+            lFilterSetListViewItems = new ArrayList<>();
+        }
+        //String Name, Sprite[] Icons, int itemType, double min = i, double max = j, double iniValue = k, double Step = f
+        FilterSetEntry tmp = new FilterSetEntry(Name, Icon, ItemType, i, j, k, f);
+        lFilterSets.add(tmp);
+
+        FilterSetListViewItem v = new FilterSetListViewItem(EditFilterSettings.ItemRec, index++, tmp);
+        // initial mit GONE
+        v.setInvisible();
+        lFilterSetListViewItems.add(v);
+        return v;
     }
 
     private FilterSetListViewItem addFilterSetItem(Sprite Icon, String Name, int ItemType) {
@@ -336,6 +358,17 @@ public class FilterSetListView extends V_ListView {
             ID = IdCounter++;
         }
 
+        public FilterSetEntry(String Name, Sprite icon, int itemType, double min, double max, double iniValue, double Step) {
+            mName = Name;
+            mIcon = icon;
+            mItemType = itemType;
+            mNumericMin = min;
+            mNumericMax = max;
+            mNumericState = iniValue;
+            mNumericStep = Step;
+            ID = IdCounter++;
+        }
+
         public FilterSetEntry(CacheTypes enumType, String name, Sprite icon, int itemType) {
             mName = name;
             mIcon = icon;
@@ -356,11 +389,9 @@ public class FilterSetListView extends V_ListView {
             if (mItemType == NUMERIC_ITEM) {
                 try {
                     double ArrayMultiplier = (mIconArray.length > 5) ? 2 : 1;
-
                     return mIconArray[(int) (mNumericState * ArrayMultiplier)];
                 } catch (Exception e) {
                 }
-
             }
             return mIcon;
         }
@@ -387,14 +418,46 @@ public class FilterSetListView extends V_ListView {
 
         public void plusClick() {
             mNumericState += mNumericStep;
-            if (mNumericState > mNumericMax)
-                mNumericState = mNumericMin;
+            if (mNumericState > mNumericMax) {
+                if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
+                    mNumericState = mNumericMax;
+                } else {
+                    mNumericState = mNumericMin;
+                }
+            }
         }
 
         public void minusClick() {
             mNumericState -= mNumericStep;
-            if (mNumericState < 0)
-                mNumericState = mNumericMax;
+            if (mNumericState < 0) {
+                if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
+                    mNumericState = mNumericMin;
+                } else {
+                    mNumericState = mNumericMax;
+                }
+            }
+        }
+
+        public void plusPlusClick() {
+            mNumericState += (mNumericStep * 10);
+            if (mNumericState > mNumericMax) {
+                if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
+                    mNumericState = mNumericMax;
+                } else {
+                    mNumericState = mNumericMin;
+                }
+            }
+        }
+
+        public void minusMinusClick() {
+            mNumericState -= (mNumericStep * 10);
+            if (mNumericState < 0) {
+                if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
+                    mNumericState = mNumericMin;
+                } else {
+                    mNumericState = mNumericMax;
+                }
+            }
         }
 
         public void stateClick() {
