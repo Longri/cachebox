@@ -144,8 +144,8 @@ public class FilterSetListView extends V_ListView {
         maxContainerSize = dt.addChild(addFilterSetItem(Sprites.SizesIcons.toArray(), Translation.Get("maxContainerSize"), NUMERIC_ITEM, 0, 4, 4, 1));
         minRating = dt.addChild(addFilterSetItem(Sprites.Stars.toArray(), Translation.Get("minRating"), NUMERIC_ITEM, 0, 5, 0, 0.5f));
         maxRating = dt.addChild(addFilterSetItem(Sprites.Stars.toArray(), Translation.Get("maxRating"), NUMERIC_ITEM, 0, 5, 5, 0.5f));
-        minFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("minFavPoints"), NUMERIC_INT_ITEM, 0, 10000, 0, 1.0f));
-        maxFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("maxFavPoints"), NUMERIC_INT_ITEM, 0, 10000, 0, 1.0f));
+        minFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("minFavPoints"), NUMERIC_INT_ITEM, -1, 10000, 0, 1.0f));
+        maxFavPoints = dt.addChild(addFilterSetItem(Sprites.getSprite(IconName.FavPoi), Translation.Get("maxFavPoints"), NUMERIC_INT_ITEM, -1, 10000, 0, 1.0f));
 
 
         // add CacheTypes
@@ -443,6 +443,7 @@ public class FilterSetListView extends V_ListView {
         }
 
         public void plusPlusClick() {
+            if (mNumericState < 0) mNumericState++;
             mNumericState += (mNumericStep * 10);
             if (mNumericState > mNumericMax) {
                 if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
@@ -455,6 +456,7 @@ public class FilterSetListView extends V_ListView {
 
         public void minusMinusClick() {
             mNumericState -= (mNumericStep * 10);
+            if (mNumericState == 0) mNumericState = -1;
             if (mNumericState < 0) {
                 if (mItemType == FilterSetListView.NUMERIC_INT_ITEM) {
                     mNumericState = mNumericMin;

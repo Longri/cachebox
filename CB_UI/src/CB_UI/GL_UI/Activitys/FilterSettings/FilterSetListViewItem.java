@@ -1,5 +1,6 @@
 package CB_UI.GL_UI.Activitys.FilterSettings;
 
+import CB_Translation_Base.TranslationEngine.Translation;
 import CB_UI.GL_UI.Activitys.FilterSettings.FilterSetListView.FilterSetEntry;
 import CB_UI_Base.GL_UI.COLOR;
 import CB_UI_Base.GL_UI.Controls.List.ListViewItemBackground;
@@ -136,13 +137,21 @@ public class FilterSetListViewItem extends ListViewItemBackground {
                     setValueFont = true;
                 }
                 if (setValueFont) {
-                    float valueOffsetX = this.mFilterSetEntry.getItemType() == FilterSetListView.NUMERIC_INT_ITEM ?
-                            MARGIN * 4 : 0;
-                    String valueString = this.mFilterSetEntry.getItemType() == FilterSetListView.NUMERIC_INT_ITEM ?
-                            String.valueOf((int) getValue()) : String.valueOf(getValue());
+                    float valueOffsetX = 0;
+                    String valueString = String.valueOf(getValue());
+                    if (this.mFilterSetEntry.getItemType() == FilterSetListView.NUMERIC_INT_ITEM) {
+                        int val = (int) getValue();
+                        if (val >= 0) {
+                            valueString = String.valueOf(val);
+                            valueOffsetX = MARGIN * 4;
+                        } else {
+                            valueString = Translation.Get("DoesntMatter");
+                            valueOffsetX = this.getHeight() * 2;
+                        }
+                    }
+
                     Value.setText(valueString, (getWidth() / 1.5f) - valueOffsetX, (getHeight() / 1.8f));
                     setValueFont = false;
-
                 }
                 Value.draw(batch);
             }

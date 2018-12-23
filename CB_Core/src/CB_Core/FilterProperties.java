@@ -126,8 +126,8 @@ public class FilterProperties {
                 }
 
                 if (parts.length <= 19) {
-                    this.MinFavPoints = 0;
-                    this.MaxFavPoints = 0;
+                    this.MinFavPoints = -1;
+                    this.MaxFavPoints = -1;
                 } else {
                     this.MinFavPoints = Double.parseDouble(parts[cnt++]);
                     this.MaxFavPoints = Double.parseDouble(parts[cnt]);
@@ -287,8 +287,8 @@ public class FilterProperties {
         MaxContainerSize = 4;
         MinRating = 0;
         MaxRating = 5;
-        MinFavPoints = 0;
-        MaxFavPoints = 0;
+        MinFavPoints = -1;
+        MaxFavPoints = -1;
 
         this.hasCorrectedCoordinates = 0;
         isHistory = false;
@@ -493,6 +493,9 @@ public class FilterProperties {
             andParts.add("Rating >= " + String.valueOf(MinRating * 100));
             andParts.add("Rating <= " + String.valueOf(MaxRating * 100));
 
+            if (MinFavPoints >= 0) andParts.add("FavPoints >= " + String.valueOf(MinFavPoints));
+            if (MaxFavPoints >= 0) andParts.add("FavPoints <= " + String.valueOf(MaxFavPoints));
+
             FilterInstances.hasCorrectedCoordinates = hasCorrectedCoordinates;
 
             String csvTypes = "";
@@ -589,6 +592,10 @@ public class FilterProperties {
         if (MinRating != filter.MinRating)
             return false;
         if (MaxRating != filter.MaxRating)
+            return false;
+        if (MinFavPoints != filter.MinFavPoints)
+            return false;
+        if (MaxFavPoints != filter.MaxFavPoints)
             return false;
 
         if (hasCorrectedCoordinates != filter.hasCorrectedCoordinates)
