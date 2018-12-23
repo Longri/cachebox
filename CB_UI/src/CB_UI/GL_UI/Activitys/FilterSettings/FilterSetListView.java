@@ -85,6 +85,8 @@ public class FilterSetListView extends V_ListView {
         props.MaxContainerSize = maxContainerSize.getValue();
         props.MinRating = minRating.getValue();
         props.MaxRating = maxRating.getValue();
+        props.MinFavPoints = minFavPoints.getValue();
+        props.MaxFavPoints = maxFavPoints.getValue();
 
         for (int i = 0; i < types.getChildLength(); i++) {
             FilterSetListViewItem itm = types.getChild(i);
@@ -288,6 +290,8 @@ public class FilterSetListView extends V_ListView {
         maxContainerSize.setValue(props.MaxContainerSize);
         minRating.setValue(props.MinRating);
         maxRating.setValue(props.MaxRating);
+        minFavPoints.setValue(props.MinFavPoints);
+        maxFavPoints.setValue(props.MaxFavPoints);
 
         for (int i = 0; i < types.getChildLength(); i++) {
             FilterSetListViewItem itm = types.getChild(i);
@@ -400,7 +404,7 @@ public class FilterSetListView extends V_ListView {
             return mState;
         }
 
-        public void setState(float State) {
+        public void setState(double State) {
             mNumericState = State;
         }
 

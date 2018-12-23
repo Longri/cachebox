@@ -501,22 +501,19 @@ public class FilterSetListViewItem extends ListViewItemBackground {
     }
 
     public void setValue(int value) {
-
         this.mFilterSetEntry.setState(value);
-
     }
 
-    public void setValue(float value) {
+    public void setValue(double value) {
         this.mFilterSetEntry.setState(value);
-
     }
 
     int getChecked() {
         return mFilterSetEntry.getState();
     }
 
-    public float getValue() {
-        return (float) mFilterSetEntry.getNumState();
+    public double getValue() {
+        return mFilterSetEntry.getNumState();
     }
 
     public void setValue(boolean b) {
