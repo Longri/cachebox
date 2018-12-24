@@ -121,6 +121,7 @@ public class Categories extends MoveableList<Category> {
     }
 
     public void WriteToFilter(FilterProperties filter) {
+        if (filter == null||filter.GPXFilenameIds == null||filter.Categories == null) return;
         filter.GPXFilenameIds.clear();
         filter.Categories.clear();
         int n = this.size();

@@ -452,16 +452,15 @@ public class EditFilterSettings extends ActivityBase {
                         Config.AcceptChanges();
                         mPresetListView.fillPresetList();
                         mPresetListView.notifyDataSetChanged();
-                        that.show();
+                        TabMainView.actionShowFilter.Execute();
                         break;
                     case 2: // cancel clicket
-                        that.show();
+                        TabMainView.actionShowFilter.Execute();
                         break;
                     case 3:
-                        that.show();
+                        TabMainView.actionShowFilter.Execute();
                         break;
                 }
-
                 return true;
             }
         });
