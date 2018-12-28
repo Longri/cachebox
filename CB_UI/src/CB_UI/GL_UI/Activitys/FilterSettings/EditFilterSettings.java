@@ -422,10 +422,9 @@ public class EditFilterSettings extends ActivityBase {
 
         if (exist) {
             GL_MsgBox.Show(Translation.Get("PresetExist") + GlobalCore.br + GlobalCore.br + "\"" + existName + "\"", null, MessageBoxButtons.OK, MessageBoxIcon.Warning, new OnMsgBoxClickListener() {
-
                 @Override
                 public boolean onClick(int which, Object data) {
-                    that.show();
+                    TabMainView.actionShowFilter.Execute();
                     return true;
                 }
             });
@@ -445,7 +444,9 @@ public class EditFilterSettings extends ActivityBase {
 
                         // Category Filterungen aus Filter entfernen
                         int pos = aktFilter.indexOf("^");
-                        aktFilter = aktFilter.substring(0, pos);
+                        int posE = aktFilter.indexOf("\"", pos);
+                        String after = aktFilter.substring(posE);
+                        aktFilter = aktFilter.substring(0, pos) + after;
 
                         uF += text + ";" + aktFilter + "#";
                         Config.UserFilter.setValue(uF);
