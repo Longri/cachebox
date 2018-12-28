@@ -41,14 +41,16 @@ public class FilterProperties {
     public int WithManualWaypoint;
     public int HasUserData;
 
-    public float MinDifficulty;
-    public float MaxDifficulty;
-    public float MinTerrain;
-    public float MaxTerrain;
-    public float MinContainerSize;
-    public float MaxContainerSize;
-    public float MinRating;
-    public float MaxRating;
+    public double MinDifficulty;
+    public double MaxDifficulty;
+    public double MinTerrain;
+    public double MaxTerrain;
+    public double MinContainerSize;
+    public double MaxContainerSize;
+    public double MinRating;
+    public double MaxRating;
+    public double MinFavPoints;
+    public double MaxFavPoints;
 
     public int hasCorrectedCoordinates;
     public boolean isHistory;
@@ -64,6 +66,7 @@ public class FilterProperties {
     public String filterOwner;
 
     public ArrayList<Long> Categories;
+    public boolean isInitialized;
 
     /**
      * creates the FilterProperties with default values.
@@ -80,91 +83,107 @@ public class FilterProperties {
      * @param serialization
      */
     public FilterProperties(String serialization) {
+        isInitialized = true;
         if (serialization.length() == 0) {
             initCreation();
             return;
         }
         // Try to parse as JSON
         if (serialization.startsWith("{")) {
-            JSONTokener tokener = new JSONTokener(serialization);
-            try {
-                JSONObject json = (JSONObject) tokener.nextValue();
+            if (serialization.endsWith("}")) {
+                JSONTokener tokener = new JSONTokener(serialization);
                 try {
-                    isHistory = json.getBoolean("isHistory");
-                } catch (Exception e) {
-                    isHistory = false;
-                }
-                String caches = json.getString("caches");
-                String[] parts = caches.split(SEPARATOR);
-                int cnt = 0;
-                Finds = Integer.parseInt(parts[cnt++]);
-                NotAvailable = Integer.parseInt(parts[cnt++]);
-                Archived = Integer.parseInt(parts[cnt++]);
-                Own = Integer.parseInt(parts[cnt++]);
-                ContainsTravelbugs = Integer.parseInt(parts[cnt++]);
-                Favorites = Integer.parseInt(parts[cnt++]);
-                HasUserData = Integer.parseInt(parts[cnt++]);
-                ListingChanged = Integer.parseInt(parts[cnt++]);
-                WithManualWaypoint = Integer.parseInt(parts[cnt++]);
-
-                MinDifficulty = Float.parseFloat(parts[cnt++]);
-                MaxDifficulty = Float.parseFloat(parts[cnt++]);
-                MinTerrain = Float.parseFloat(parts[cnt++]);
-                MaxTerrain = Float.parseFloat(parts[cnt++]);
-                MinContainerSize = Float.parseFloat(parts[cnt++]);
-                MaxContainerSize = Float.parseFloat(parts[cnt++]);
-                MinRating = Float.parseFloat(parts[cnt++]);
-                MaxRating = Float.parseFloat(parts[cnt++]);
-
-                if (parts.length == 17) {
-                    this.hasCorrectedCoordinates = 0;
-                } else {
-                    hasCorrectedCoordinates = Integer.parseInt(parts[cnt++]);
-                }
-
-                mCacheTypes = parseCacheTypes(json.getString("types"));
-
-                String attributes = json.getString("attributes");
-                parts = attributes.split(SEPARATOR);
-                mAttributes = new int[Attributes.values().length];
-                mAttributes[0] = 0; // gibts nicht
-                int og = parts.length;
-                if (parts.length == mAttributes.length) {
-                    og = parts.length - 1; // falls doch schon mal mit mehr gespeichert
-                }
-                for (int i = 0; i < (og); i++)
-                    mAttributes[i + 1] = Integer.parseInt(parts[i]);
-                // aus älteren Versionen
-                for (int i = og; i < mAttributes.length - 1; i++)
-                    mAttributes[i + 1] = 0;
-
-                GPXFilenameIds = new ArrayList<Long>();
-                String gpxfilenames = json.getString("gpxfilenameids");
-                parts = gpxfilenames.split(SEPARATOR);
-                cnt = 0;
-                if (parts.length > cnt) {
-                    String tempGPX = parts[cnt++];
-                    String[] partsGPX = tempGPX.split("\\" + GPXSEPARATOR);
-                    for (int i = 1; i < partsGPX.length; i++) {
-                        GPXFilenameIds.add(Long.parseLong(partsGPX[i]));
+                    JSONObject json = (JSONObject) tokener.nextValue();
+                    try {
+                        isHistory = json.getBoolean("isHistory");
+                    } catch (Exception e) {
+                        isHistory = false;
                     }
-                }
+                    String caches = json.getString("caches");
+                    String[] parts = caches.split(SEPARATOR);
+                    int cnt = 0;
+                    Finds = Integer.parseInt(parts[cnt++]);
+                    NotAvailable = Integer.parseInt(parts[cnt++]);
+                    Archived = Integer.parseInt(parts[cnt++]);
+                    Own = Integer.parseInt(parts[cnt++]);
+                    ContainsTravelbugs = Integer.parseInt(parts[cnt++]);
+                    Favorites = Integer.parseInt(parts[cnt++]);
+                    HasUserData = Integer.parseInt(parts[cnt++]);
+                    ListingChanged = Integer.parseInt(parts[cnt++]);
+                    WithManualWaypoint = Integer.parseInt(parts[cnt++]);
 
-                filterName = json.getString("filtername");
-                filterGcCode = json.getString("filtergc");
-                filterOwner = json.getString("filterowner");
+                    MinDifficulty = Float.parseFloat(parts[cnt++]);
+                    MaxDifficulty = Float.parseFloat(parts[cnt++]);
+                    MinTerrain = Float.parseFloat(parts[cnt++]);
+                    MaxTerrain = Float.parseFloat(parts[cnt++]);
+                    MinContainerSize = Float.parseFloat(parts[cnt++]);
+                    MaxContainerSize = Float.parseFloat(parts[cnt++]);
+                    MinRating = Float.parseFloat(parts[cnt++]);
+                    MaxRating = Float.parseFloat(parts[cnt++]);
 
-                Categories = new ArrayList<Long>();
-                String filtercategories = json.getString("categories");
-                if (filtercategories.length() > 0) {
-                    String[] partsGPX = filtercategories.split("\\" + GPXSEPARATOR);
-                    for (int i = 1; i < partsGPX.length; i++) {
-                        // Log.info(log, "parts[" + i + "]=" + partsGPX[i]);
-                        Categories.add(Long.parseLong(partsGPX[i]));
+                    if (parts.length <= 17) {
+                        this.hasCorrectedCoordinates = 0;
+                    } else {
+                        hasCorrectedCoordinates = Integer.parseInt(parts[cnt++]);
                     }
+
+                    if (parts.length <= 19) {
+                        this.MinFavPoints = -1;
+                        this.MaxFavPoints = -1;
+                    } else {
+                        this.MinFavPoints = Double.parseDouble(parts[cnt++]);
+                        this.MaxFavPoints = Double.parseDouble(parts[cnt]);
+                    }
+
+                    mCacheTypes = parseCacheTypes(json.getString("types"));
+
+                    String attributes = json.getString("attributes");
+                    parts = attributes.split(SEPARATOR);
+                    mAttributes = new int[Attributes.values().length];
+                    mAttributes[0] = 0; // gibts nicht
+                    int og = parts.length;
+                    if (parts.length == mAttributes.length) {
+                        og = parts.length - 1; // falls doch schon mal mit mehr gespeichert
+                    }
+                    for (int i = 0; i < (og); i++)
+                        mAttributes[i + 1] = Integer.parseInt(parts[i]);
+                    // aus älteren Versionen
+                    for (int i = og; i < mAttributes.length - 1; i++)
+                        mAttributes[i + 1] = 0;
+
+                    GPXFilenameIds = new ArrayList<Long>();
+                    String gpxfilenames = json.getString("gpxfilenameids");
+                    parts = gpxfilenames.split(SEPARATOR);
+                    cnt = 0;
+                    if (parts.length > cnt) {
+                        String tempGPX = parts[cnt++];
+                        String[] partsGPX = tempGPX.split("\\" + GPXSEPARATOR);
+                        for (int i = 1; i < partsGPX.length; i++) {
+                            GPXFilenameIds.add(Long.parseLong(partsGPX[i]));
+                        }
+                    }
+
+                    filterName = json.getString("filtername");
+                    filterGcCode = json.getString("filtergc");
+                    filterOwner = json.getString("filterowner");
+
+                    Categories = new ArrayList<Long>();
+                    String filtercategories = json.getString("categories");
+                    if (filtercategories.length() > 0) {
+                        String[] partsGPX = filtercategories.split("\\" + GPXSEPARATOR);
+                        for (int i = 1; i < partsGPX.length; i++) {
+                            // Log.info(log, "parts[" + i + "]=" + partsGPX[i]);
+                            Categories.add(Long.parseLong(partsGPX[i]));
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.err(log, "Json Version FilterProperties(" + serialization + ")", "", e);
+                    isInitialized = false;
                 }
-            } catch (JSONException e) {
-                Log.err(log, "Json Version FilterProperties(" + serialization + ")", "", e);
+            }
+            else {
+                Log.err(log, "Json Version FilterProperties(" + serialization + ")");
+                isInitialized = false;
             }
         } else {
             // Filter ist noch in alten Einstellungen gegeben...
@@ -240,6 +259,7 @@ public class FilterProperties {
                 }
             } catch (Exception exc) {
                 Log.err(log, "old Version FilterProperties(" + serialization + ")", "", exc);
+                isInitialized = false;
             }
         }
     }
@@ -276,6 +296,8 @@ public class FilterProperties {
         MaxContainerSize = 4;
         MinRating = 0;
         MaxRating = 5;
+        MinFavPoints = -1;
+        MaxFavPoints = -1;
 
         this.hasCorrectedCoordinates = 0;
         isHistory = false;
@@ -350,10 +372,17 @@ public class FilterProperties {
             json.put("isHistory", isHistory);
             // add Cache properties
             json.put("caches",
-                    String.valueOf(Finds) + SEPARATOR + String.valueOf(NotAvailable) + SEPARATOR + String.valueOf(Archived) + SEPARATOR + String.valueOf(Own) + SEPARATOR + String.valueOf(ContainsTravelbugs) + SEPARATOR + String.valueOf(Favorites)
-                            + SEPARATOR + String.valueOf(HasUserData) + SEPARATOR + String.valueOf(ListingChanged) + SEPARATOR + String.valueOf(WithManualWaypoint) + SEPARATOR + String.valueOf(MinDifficulty) + SEPARATOR
-                            + String.valueOf(MaxDifficulty) + SEPARATOR + String.valueOf(MinTerrain) + SEPARATOR + String.valueOf(MaxTerrain) + SEPARATOR + String.valueOf(MinContainerSize) + SEPARATOR + String.valueOf(MaxContainerSize) + SEPARATOR
-                            + String.valueOf(MinRating) + SEPARATOR + String.valueOf(MaxRating) + SEPARATOR + String.valueOf(this.hasCorrectedCoordinates));
+                    String.valueOf(Finds) + SEPARATOR + String.valueOf(NotAvailable) + SEPARATOR
+                            + String.valueOf(Archived) + SEPARATOR + String.valueOf(Own) + SEPARATOR
+                            + String.valueOf(ContainsTravelbugs) + SEPARATOR + String.valueOf(Favorites) + SEPARATOR
+                            + String.valueOf(HasUserData) + SEPARATOR + String.valueOf(ListingChanged) + SEPARATOR
+                            + String.valueOf(WithManualWaypoint) + SEPARATOR + String.valueOf(MinDifficulty) + SEPARATOR
+                            + String.valueOf(MaxDifficulty) + SEPARATOR + String.valueOf(MinTerrain) + SEPARATOR
+                            + String.valueOf(MaxTerrain) + SEPARATOR + String.valueOf(MinContainerSize) + SEPARATOR
+                            + String.valueOf(MaxContainerSize) + SEPARATOR + String.valueOf(MinRating) + SEPARATOR
+                            + String.valueOf(MaxRating) + SEPARATOR + String.valueOf(this.hasCorrectedCoordinates) + SEPARATOR
+                            + String.valueOf(MinFavPoints) + SEPARATOR + String.valueOf(MaxFavPoints));
+
             // add Cache Types
             String tmp = "";
             for (int i = 0; i < mCacheTypes.length; i++) {
@@ -473,6 +502,9 @@ public class FilterProperties {
             andParts.add("Rating >= " + String.valueOf(MinRating * 100));
             andParts.add("Rating <= " + String.valueOf(MaxRating * 100));
 
+            if (MinFavPoints >= 0) andParts.add("FavPoints >= " + String.valueOf(MinFavPoints));
+            if (MaxFavPoints >= 0) andParts.add("FavPoints <= " + String.valueOf(MaxFavPoints));
+
             FilterInstances.hasCorrectedCoordinates = hasCorrectedCoordinates;
 
             String csvTypes = "";
@@ -569,6 +601,10 @@ public class FilterProperties {
         if (MinRating != filter.MinRating)
             return false;
         if (MaxRating != filter.MaxRating)
+            return false;
+        if (MinFavPoints != filter.MinFavPoints)
+            return false;
+        if (MaxFavPoints != filter.MaxFavPoints)
             return false;
 
         if (hasCorrectedCoordinates != filter.hasCorrectedCoordinates)
